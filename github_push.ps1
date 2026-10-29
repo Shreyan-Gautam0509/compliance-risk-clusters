@@ -11,18 +11,31 @@
 # =============================================================================
 
 param(
-    [string]$GitHubUsername = "YOUR_GITHUB_USERNAME",
+    [string]$RepoUrl        = "",
+    [string]$GitHubUsername = "",
     [string]$RepoName       = "compliance-risk-clusters",
-    [string]$CommitMsg      = "Initial commit: SIH26051 PCA Compliance Risk Clustering"
+    [string]$CommitMsg      = "feat: complete implementation for SIH26051 compliance risk clustering"
 )
 
-# --- Validate ----------------------------------------------------------------
-if ($GitHubUsername -eq "YOUR_GITHUB_USERNAME") {
-    Write-Error "Edit this script and set your GitHub username first."
-    exit 1
+# Ensure MinGit is in PATH if not already
+$gitCmdDir = "$env:LOCALAPPDATA\Programs\MinGit\cmd"
+if (Test-Path $gitCmdDir) {
+    $env:Path = "$gitCmdDir;$env:Path"
 }
 
-$RepoUrl = "https://github.com/$GitHubUsername/$RepoName.git"
+# Resolve RepoUrl
+if (-not $RepoUrl) {
+    if ($GitHubUsername) {
+        $RepoUrl = "https://github.com/$GitHubUsername/$RepoName.git"
+    } else {
+        $RepoUrl = Read-Host "Enter your GitHub Repository URL (e.g. https://github.com/username/repo.git)"
+    }
+}
+
+if (-not $RepoUrl) {
+    Write-Error "No repository URL provided. Exiting."
+    exit 1
+}
 
 Write-Host "`n=== SIH26051 GitHub Push Script ===" -ForegroundColor Cyan
 Write-Host "Repository : $RepoUrl"
